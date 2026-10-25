@@ -1,0 +1,16 @@
+product: android/app
+
+dependencies:
+  - //app/shared
+  - $libs.androidx.activity.compose
+  - $compose.preview
+  - $compose.uiTooling
+
+settings:
+  jvm:
+    jdk:
+      version: 25
+  compose: enabled
+  android:
+    namespace: com.lucas.vortex
+    applicationId: com.lucas.vortex

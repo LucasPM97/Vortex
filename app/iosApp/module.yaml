@@ -1,0 +1,11 @@
+product: ios/app
+
+dependencies:
+  - //app/shared
+  - $compose.ui
+
+settings:
+  jvm:
+    jdk:
+      version: 25
+  compose: enabled

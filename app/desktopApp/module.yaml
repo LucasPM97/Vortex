@@ -1,0 +1,15 @@
+product: jvm/app
+
+dependencies:
+  - //app/shared
+  - $compose.desktop.currentOs
+  - $compose.preview
+  - $libs.kotlinx.coroutines.swing
+  - $libs.logback.classic
+
+settings:
+  compose: enabled
+  jvm:
+    jdk:
+      version: 25
+    mainClass: com.lucas.vortex.MainKt
