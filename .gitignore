@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# Downloaded lint tool jars (ktlint, detekt) — fetched on demand by scripts/
+.cache/vortex-lint-tools/
+
 # Local configuration file (sdk path, etc)
 local.properties
 

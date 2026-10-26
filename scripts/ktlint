@@ -1,0 +1,42 @@
+#!/bin/sh
+#
+# Self-provisioning ktlint wrapper. Downloads the pinned ktlint version into a
+# local cache on first use (verified against a pinned SHA-256), then runs it.
+# Mirrors the trust-on-first-use pattern used by the repo's Amper `kotlin` wrapper.
+#
+set -e -u
+
+ktlint_version=1.8.0
+ktlint_sha256=a3fd620207d5c40da6ca789b95e7f823c54e854b7fade7f613e91096a3706d75
+ktlint_url="https://github.com/ktlint/ktlint/releases/download/${ktlint_version}/ktlint"
+
+cache_dir="${KTLINT_CACHE_DIR:-$HOME/.cache/vortex-lint-tools}"
+jar="$cache_dir/ktlint-${ktlint_version}"
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+check_sha() {
+  if command -v shasum >/dev/null 2>&1; then
+    actual=$(shasum -a 256 "$1" | awk '{print $1}')
+  elif command -v sha256sum >/dev/null 2>&1; then
+    actual=$(sha256sum "$1" | awk '{print $1}')
+  else
+    die "Need either 'shasum' or 'sha256sum' on PATH to verify ktlint integrity."
+  fi
+  [ "$actual" = "$2" ] || die "SHA-256 mismatch for $1 (expected $2, got $actual). Refusing to run."
+}
+
+if [ ! -f "$jar" ]; then
+  mkdir -p "$cache_dir"
+  tmp="$jar.tmp.$$"
+  echo "Downloading ktlint $ktlint_version..." >&2
+  curl -fsSL -o "$tmp" "$ktlint_url"
+  check_sha "$tmp" "$ktlint_sha256"
+  chmod +x "$tmp"
+  mv "$tmp" "$jar"
+fi
+
+exec "$jar" "$@"

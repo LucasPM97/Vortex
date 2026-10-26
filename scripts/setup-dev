@@ -1,0 +1,9 @@
+#!/bin/sh
+# One-time dev environment setup. Run after cloning: ./scripts/setup-dev
+set -e -u
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+git config core.hooksPath .githooks
+echo "Enabled .githooks (ktlint + detekt now run on 'git commit')."

@@ -1,0 +1,36 @@
+build:
+  maxIssues: 0
+
+config:
+  validation: true
+
+processors:
+  active: true
+
+console-reports:
+  active: true
+
+style:
+  active: true
+  MagicNumber:
+    active: false
+
+naming:
+  active: true
+  FunctionNaming:
+    ignoreAnnotated: [ 'Composable' ]
+  FunctionParameterNaming:
+    ignoreAnnotated: [ 'Composable' ]
+  TopLevelPropertyNaming:
+    constantPattern: '[A-Z][A-Za-z0-9]*'
+
+complexity:
+  active: true
+  LongMethod:
+    threshold: 60
+  LongParameterList:
+    active: true
+    ignoreAnnotated: [ 'Composable' ]
+
+comments:
+  active: false

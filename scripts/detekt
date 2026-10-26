@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Self-provisioning detekt wrapper. Downloads the pinned detekt-cli version into
+# a local cache on first use (verified against a pinned SHA-256), then runs it.
+# Mirrors the trust-on-first-use pattern used by the repo's Amper `kotlin` wrapper.
+#
+set -e -u
+
+detekt_version=1.23.8
+detekt_sha256=2ce2ff952e150baf28a29cda70a363b0340b3e81a55f43e51ec5edffc3d066c1
+detekt_url="https://github.com/detekt/detekt/releases/download/v${detekt_version}/detekt-cli-${detekt_version}-all.jar"
+
+cache_dir="${DETEKT_CACHE_DIR:-$HOME/.cache/vortex-lint-tools}"
+jar="$cache_dir/detekt-cli-${detekt_version}-all.jar"
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+check_sha() {
+  if command -v shasum >/dev/null 2>&1; then
+    actual=$(shasum -a 256 "$1" | awk '{print $1}')
+  elif command -v sha256sum >/dev/null 2>&1; then
+    actual=$(sha256sum "$1" | awk '{print $1}')
+  else
+    die "Need either 'shasum' or 'sha256sum' on PATH to verify detekt integrity."
+  fi
+  [ "$actual" = "$2" ] || die "SHA-256 mismatch for $1 (expected $2, got $actual). Refusing to run."
+}
+
+if [ ! -f "$jar" ]; then
+  mkdir -p "$cache_dir"
+  tmp="$jar.tmp.$$"
+  echo "Downloading detekt-cli $detekt_version..." >&2
+  curl -fsSL -o "$tmp" "$detekt_url"
+  check_sha "$tmp" "$detekt_sha256"
+  mv "$tmp" "$jar"
+fi
+
+exec java -jar "$jar" "$@"

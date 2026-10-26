@@ -1,0 +1,29 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ktlint-detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache lint tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/vortex-lint-tools
+          key: lint-tools-${{ hashFiles('scripts/ktlint', 'scripts/detekt') }}
+
+      - name: Run ktlint
+        run: find . -path ./build -prune -o -name "*.kt" -print -o -name "*.kts" -print | xargs ./scripts/ktlint --relative
+
+      - name: Run detekt
+        run: ./scripts/detekt --config detekt.yml --input core,app,server
